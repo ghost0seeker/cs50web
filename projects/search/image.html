@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="styles.css" rel="stylesheet">
+    <title>Image Search</title>
+</head>
+<body>
+    <nav class="nav">
+        <div class="pill-shape-g">
+            <a href="index.html">Google Search</a>
+        </div>
+        <div class="pill-shape-a">
+            <a href="advanced.html">Advanced Search</a>
+        </div>
+    </nav>
+    <div class="form-body">
+        <form class="form" action="https://images.google.com/search">
+            <div class="search-bar">
+                <svg id="search-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+                <input class="input" type="text" name="q">
+                <input type="hidden" name="sclient" value="img">
+                <input type="hidden" name="udm" value="2">
+            </div>
+            <input class="button" type="submit" value="Image Search">
+        </form>
+    </div>
+</body>
+</html>
