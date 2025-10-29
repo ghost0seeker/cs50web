@@ -5,11 +5,9 @@
 {% endblock %}
 
 {% block body %}
-    {% if file_exists %}
-    <div class="text-danger">File Exists!</div>
+    <div class="text-danger" id="file_exists">File Exists!</div>
     <!-- TODO: Add javscript to show an alert of success and then redirect to wiki viewc -->
-    {% endif %}
-    <form class="editor" method="post">
+    <form class="editor">
         {% csrf_token %}
         <div class="mb-3">
             {{ form.title }}
@@ -25,4 +23,57 @@
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
+    <script>
+        const form = document.querySelector(".editor");
+
+        form.addEventListener('submit', async function(event) {
+            eventa.preventDefault();
+
+            clearErrors();
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/new/',{
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    window.location.href = `wiki/${formData.get("title")}`;
+                } else if (data.status === 'file_exists') {
+                    document.querySelector("#file_exists").style.display = 'block';
+                } else if (data.status === 'form_invalid') {
+                    displayErrors(data.errors)
+                }
+
+            } catch (error) {
+                console.error('Error: ', error);
+            }
+        });
+
+        function displayErrors(errors) {
+            for (const [field, message] of Object.entries(errors));
+            const input = document.querySelector(`[name="${field}"]`);
+
+            if (input) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = messages.join(', ');
+
+                input.classList.add('is-invalid');
+                input.parentNode.appendChild(errorDiv);
+            }
+        };
+
+        function clearErrors() {
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        }
+    </script>
 {% endblock %}

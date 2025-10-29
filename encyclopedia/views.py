@@ -1,5 +1,6 @@
 from django.core.checks import messages
 from django.forms import widgets
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from markdown2 import markdown
 from . import util
@@ -8,6 +9,7 @@ from django import forms
 class EditorForm(forms.Form):
     title = forms.CharField(initial='Title',widget=forms.TextInput(attrs={
         'class': 'form-control title',
+        'autocomplete': 'off',
     }))
     
     content = forms.CharField(widget=forms.Textarea(attrs={
@@ -66,16 +68,22 @@ def new(request):
             content = form.cleaned_data['content']
 
             if util.save_new_entry(title, content):
-                return redirect('wiki', title=title)
+               return JsonResponse({
+                'status': 'success',
+                'message': 'File Created!'
+               }, status=200) 
             else:
-                return render(request,"encyclopedia/new.html", {
-                    "form": form,
-                    "file_exists": True,
-                })
+                return JsonResponse({
+                    'status': 'file_exists',
+                    'message': 'File Exists'
+                }, status=409)
         else:               
-            return render(request,"encyclopedia/new.html", {
-                "form": form
-                })                
+            return JsonResponse({
+                'status': 'form_invalid',
+                'message': 'Form validation failed',
+                'errors': form.errors
+            }, status=400)
+
     return render(request, "encyclopedia/new.html", {
         "form": EditorForm()
     })
