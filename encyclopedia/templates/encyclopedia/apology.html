@@ -1,0 +1,16 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Apology
+{% endblock %}
+
+{% block body %}
+    <div class="apology-container align-items-center">
+        <img src="https://www.grumpycats.com/images/about/tardar.jpg"
+            alt="{{ message }}"
+        >
+        <div class="apology-text top-text">{{message}}</div>
+        <div class="apology-text bottom-text">{{status_code}}</div>
+    </div>
+
+{% endblock %}

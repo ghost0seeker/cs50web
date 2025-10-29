@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+    background-color: white;
+}
+
+code {
+    white-space: pre;
+}
+
+h1 {
+    margin-top: 0px;
+    padding-top: 20px;
+}
+
+textarea {
+    height: 90vh;
+    width: 80%;
+}
+
+.main {
+    padding: 10px;
+}
+
+.search {
+    width: 100%;
+    font-size: 15px;
+    line-height: 15px;
+}
+
+.sidebar {
+    background-color: #f0f0f0;
+    height: 100vh;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-top: 5px;
+}
+
+.apology-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 20px auto;
+}
+    
+.apology-container img {
+    width: 500px;
+    height: auto;
+    display: block;
+}
+
+.apology-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    left: 0;
+    font-family: Impact, 'Arial Black', sans-serif;
+    font-size: clamp(1.5rem, 5vw, 3rem); /* Responsive sizing */
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 
+        3px 3px 0 #000,
+        -3px -3px 0 #000,
+        3px -3px 0 #000,
+        -3px 3px 0 #000;
+    padding: 15px;
+    line-height: 1.1;
+}
+
+.top-text {
+    top: 10px;
+}
+
+.bottom-text {
+    bottom: 10px;
+}
+
+.title {
+    width: 75vw;
+}
+
+#content {
+    width: 75vw;
+    resize: none;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#content {
+    min-height: 85vh;
+}
