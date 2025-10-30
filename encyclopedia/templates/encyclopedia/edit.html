@@ -1,0 +1,24 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    New Wiki
+{% endblock %}
+
+{% block body %}
+    <form class="editor" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.title }}
+            {% if form.content.errors %}
+                <div class="text-danger">{{ form.content.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.content }}
+            {% if form.content.errors %}
+                <div class="text-danger">{{ form.content.errors }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+{% endblock %}

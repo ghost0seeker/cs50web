@@ -12,12 +12,14 @@ def list_entries():
     return list(sorted(re.sub(r"\.md$", "", filename)
                 for filename in filenames if filename.endswith(".md")))
 
+
 def save_new_entry(title, content):
     filename = f"entries/{title}.md"
     if default_storage.exists(filename):
         return False
     default_storage.save(filename, ContentFile(content))
     return True
+
 
 def save_entry(title, content):
     """

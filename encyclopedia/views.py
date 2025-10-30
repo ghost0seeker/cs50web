@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from markdown2 import markdown
 from . import util
 from django import forms
+import random
 
 class EditorForm(forms.Form):
     title = forms.CharField(initial='Title',widget=forms.TextInput(attrs={
@@ -79,3 +80,42 @@ def new(request):
     return render(request, "encyclopedia/new.html", {
         "form": EditorForm()
     })
+
+def edit(request, title):
+    if request.method == "POST":
+        form = EditorForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+
+            util.save_entry(title, content)
+            return redirect('wiki', title=title)
+        else:
+            return render(request, "encyclopedia/edit.html", {
+                "form": form
+            })
+    
+    form = EditorForm(initial={
+        'title': title,
+        'content': util.get_entry(title)
+    })
+
+    return render(request, "encyclopedia/edit.html", {
+        "form": form,
+    })
+
+def random_wiki(request):
+    
+    entries = util.list_entries()
+    previous_title = request.session.get('last-random-title')
+
+    if len(entries) > 1:
+        title = random.choice(entries)
+        while title == previous_title:
+            title = random.choice(entries)
+    else:
+        title = random.choice(entries) if entries else None
+
+    request.session['last-random-title'] = title
+    
+    return redirect('wiki', title=title)
