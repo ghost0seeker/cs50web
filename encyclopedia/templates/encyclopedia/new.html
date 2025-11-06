@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block body %}
-    <div class="text-danger" id="file_exists">File Exists!</div>
+    <div class="text-danger" id="file_exists" style="display: none;">File Exists!</div>
+    <div class="text-success" id="success-status" style="display: none;">File Saved!</div>
     <!-- TODO: Add javscript to show an alert of success and then redirect to wiki viewc -->
     <form class="editor">
         {% csrf_token %}
@@ -27,7 +28,7 @@
         const form = document.querySelector(".editor");
 
         form.addEventListener('submit', async function(event) {
-            eventa.preventDefault();
+            event.preventDefault();
 
             clearErrors();
 
@@ -45,7 +46,9 @@
                 const data = await response.json();
 
                 if (response.ok && data.status === 'success') {
-                    window.location.href = `wiki/${formData.get("title")}`;
+                    document.getElementById('success-status').style.display = 'block';
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    window.location.href = `/wiki/${formData.get("title")}`;
                 } else if (data.status === 'file_exists') {
                     document.querySelector("#file_exists").style.display = 'block';
                 } else if (data.status === 'form_invalid') {

@@ -43,7 +43,8 @@ def entry(request, title):
     if not md_string:
         return apology(request, "Entry Not Found", 404)
     else:
-        md_html = markdown(md_string)
+        md_html = markdown(md_string, extras=[
+            "fenced-code-blocks"])
         return render(request, "encyclopedia/entry.html", {
             "title": title,
             "md_html": md_html,
@@ -68,10 +69,10 @@ def new(request):
             content = form.cleaned_data['content']
 
             if util.save_new_entry(title, content):
-               return JsonResponse({
-                'status': 'success',
-                'message': 'File Created!'
-               }, status=200) 
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'File Created!'
+                }, status=200) 
             else:
                 return JsonResponse({
                     'status': 'file_exists',
