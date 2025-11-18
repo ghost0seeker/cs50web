@@ -15,6 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# FORCE_SCRIPT_NAME = '/@ghost0seeker/cs50-web.main/apps/code-server/proxy/8000'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -25,7 +26,14 @@ SECRET_KEY = 'django-insecure-1nm0a5wai#-!q@fth#am39*vd48o&jpk^a-djg%@b$vvs!v(yr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "coder.ghostcastle.space",
+    "localhost",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://coder.ghostcastle.space",
+]
 
 
 # Application definition
