@@ -5,13 +5,19 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+class Category(models.Model):
+    name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.category}"
+
 class AuctionItem(models.Model):
     title = models.CharField(max_length=64) 
     desc = models.TextField()
     image = models.URLField(blank=True, null=True)
     initial_bid = models.DecimalField(max_digits=10, decimal_places=2)
     created_date = models.DateField(auto_now_add=True)
-    category = models.CharField(max_length=32)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     state = models.CharField(max_length=32)
 
 class Bid(models.Model):
@@ -25,9 +31,3 @@ class Comment(models.Model):
     comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField(auto_now=True)
-
-class Category(models.Model):
-    category = models.CharField(max_length=64)
-
-    def __str__(self):
-        return f"{self.category}"

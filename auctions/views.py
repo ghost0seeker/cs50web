@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 
-from .models import User, AuctionItem, Bid, Comment
+from .models import User, AuctionItem, Bid, Comment, Category
 
 class NewItemForm(forms.Form):
     title = forms.CharField()
@@ -16,7 +16,10 @@ class NewItemForm(forms.Form):
 def create_listing(request):
     if request.method == "POST":
         pass
-    return render(request, "auctions/create_listing.html")
+    categories = Category.objects.all()
+    return render(request, "auctions/create_listing.html", {
+        "categories": categories
+        })
 
 
 def index(request):
