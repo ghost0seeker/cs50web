@@ -3,14 +3,20 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django import forms
 
 from .models import User, AuctionItem, Bid, Comment
 
 class NewItemForm(forms.Form):
     title = forms.CharField()
-    description = form.TextField()
-    initial_bid = form.DecimalField(max_digits=10, decimal_places=2)
-    category = form.CharField()
+    description = forms.CharField()
+    initial_bid = forms.DecimalField(max_digits=10, decimal_places=2)
+    category = forms.CharField()
+
+def create_listing(request):
+    if request.method == "POST":
+        pass
+    return render(request, "auctions/create_listing.html")
 
 
 def index(request):
