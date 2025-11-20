@@ -10,7 +10,8 @@ from .models import User, AuctionItem, Bid, Comment, Category
 class NewItemForm(forms.Form):
     title = forms.CharField()
     description = forms.CharField()
-    initial_bid = forms.DecimalField(max_digits=10, decimal_places=2)
+    image = forms.URLField()
+    initial_bid_price = forms.DecimalField(max_digits=10, decimal_places=2)
     category = forms.CharField()
 
 def create_listing(request):
@@ -22,8 +23,8 @@ def create_listing(request):
             item = AuctionItem(
                     title=lf.cleaned_data["title"],
                     desc=lf.cleaned_data["description"],
-                    # image=lf.cleaned_data["image"],
-                    initial_bid=lf.cleaned_data["initial_bid"],
+                    image=lf.cleaned_data["image"],
+                    initial_bid_price=lf.cleaned_data["initial_bid_price"],
                     category=category,
                 )
             item.save()
@@ -41,7 +42,8 @@ def create_listing(request):
 
 def index(request):
     auction_items = AuctionItem.objects.all()
-
+    for auction in auction_items:
+        print(auction.get_highest_bid())
     return render(request, "auctions/index.html", {
         "auction_items" : auction_items,
     })
@@ -97,3 +99,9 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def item_view(request, item_id):
+    auction_item = AuctionItem.objects.get(pk=item_id)
+    return render(request, "auctions/item.html", {
+        "item": auction_item,
+    })

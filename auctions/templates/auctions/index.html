@@ -8,9 +8,10 @@
             <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
             <div class="card-body">
                 <h5 class="card-title">{{ item.title }}</h5>
-                <h6 class="card-title">{{ item.initial_bid }}</h6>
+                <h6 class="card-title">${{ item.initial_bid_price }}</h6>
                 <p class="card-text">{{ item.desc }}</p>
                 <p class="card-text">{{ item.category }}</p>
+                <a href="{% url 'item' item.id %}" class="stretched-link"></a>
             </div>
         </div>
     {% empty %}

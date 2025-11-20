@@ -1,0 +1,13 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <p class="h3">{{ item.title }}</p>
+    <div class="item-card d-flex gap-3">
+        <div class="card" style="width: 600px;" >
+            <img src="{{ item.image }}" class="img-fluid" alt="{{ item.desc }}">
+        </div>
+        <div class="item_actions">
+            <h5>$ {{ item.get_highest_bid }}</h5>
+        </div>
+    </div>
+{% endblock %}
