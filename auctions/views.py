@@ -6,6 +6,12 @@ from django.urls import reverse
 
 from .models import User, AuctionItem, Bid, Comment
 
+class NewItemForm(forms.Form):
+    title = forms.CharField()
+    description = form.TextField()
+    initial_bid = form.DecimalField(max_digits=10, decimal_places=2)
+    category = form.CharField()
+
 
 def index(request):
     return render(request, "auctions/index.html")
