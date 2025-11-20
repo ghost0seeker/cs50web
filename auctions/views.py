@@ -14,16 +14,37 @@ class NewItemForm(forms.Form):
     category = forms.CharField()
 
 def create_listing(request):
-    if request.method == "POST":
-        pass
     categories = Category.objects.all()
+    if request.method == "POST":
+        lf = NewItemForm(request.POST)
+        if lf.is_valid():
+            category = Category.objects.get(pk=lf.cleaned_data["category"])
+            item = AuctionItem(
+                    title=lf.cleaned_data["title"],
+                    desc=lf.cleaned_data["description"],
+                    # image=lf.cleaned_data["image"],
+                    initial_bid=lf.cleaned_data["initial_bid"],
+                    category=category,
+                )
+            item.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/create_listing.html", {
+                "message" : "Invalid Data", #TODO: use form object errors instead
+                "categories": categories,
+            })
+
     return render(request, "auctions/create_listing.html", {
         "categories": categories
         })
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    auction_items = AuctionItem.objects.all()
+
+    return render(request, "auctions/index.html", {
+        "auction_items" : auction_items,
+    })
 
 
 def login_view(request):

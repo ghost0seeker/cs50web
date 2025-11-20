@@ -3,5 +3,17 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    {% for item in auction_items %}
+        <div class="card" style="width: 18rem;">
+            <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.title }}</h5>
+                <h6 class="card-title">{{ item.initial_bid }}</h6>
+                <p class="card-text">{{ item.desc }}</p>
+                <p class="card-text">{{ item.category }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <div>No Listings</div>
+    {% endfor %}
 {% endblock %}
