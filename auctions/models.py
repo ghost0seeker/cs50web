@@ -18,7 +18,7 @@ class AuctionItem(models.Model):
     initial_bid_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_date = models.DateField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    state = models.CharField(max_length=32)
+    state = models.CharField(max_length=32, default="New Listing")
 
     def _get_highest_bid_obj(self):
         return self.bid_set.order_by('-price').first()
@@ -28,6 +28,9 @@ class AuctionItem(models.Model):
         if highest_bid:
             return highest_bid.price
         return self.initial_bid_price
+    
+    def __str__(self):
+        return f"{self.title} {self.get_highest_bid()}{self.state}"
 
 class Bid(models.Model):
     item = models.ForeignKey(AuctionItem, on_delete=models.CASCADE)
@@ -37,6 +40,6 @@ class Bid(models.Model):
 
 class Comment(models.Model):
     item = models.ForeignKey(AuctionItem, on_delete=models.CASCADE)
-    comment = models.TextField()
+    text = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField(auto_now=True)

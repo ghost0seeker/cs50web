@@ -9,7 +9,10 @@
         <div class="item_actions d-flex flex-column gap-2 flex-grow-1">
             <h4>Current Bid: $ {{ item.get_highest_bid }}</h4>
             <h5>Initial Bid: $ {{ item.initial_bid_price }}</h5>
-            <form action="#" method="post" class="d-flex flex-column gap-2">
+            {% if item.bid_set %}
+                <h6>{{ item.bid_set.count }} bids so far</h6>
+            {% endif %}
+                <form action="{% url 'bid_item' item.id%}" method="post" class="d-flex flex-column gap-2">
                 {% csrf_token %}
                 <div class="form-group" style="width: 250px;">
                     <input class="form-control" type="text" name="bid_amount" placeholder="Bid Amount">
@@ -17,8 +20,35 @@
                 <input class="btn btn-primary" type="submit" value="Submit" style="width: 250px;">
             </form>
             <hr class="flex-grow-1">
-            
+            {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success">{{ message }}</div>
+                {% elif message.tags == 'warning' %}
+                <div class="alert alert-warning">{{ message }}</div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-danger">{{ message }}</div>
+                {% elif message.tags == 'info' %}
+                <div class="alert alert-info">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+            {% endif %}
         </div>
-
     </div>
+    <hr>
+    <p class="h3">Comments</p>
+    {% for comment in comments %}
+        <div class="card">
+            <div class="card-header">
+                {{ comment.date }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ comment.user.username }}</h5>
+                <p class="card-text">{{ comment.text }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>No comments</p>
+    {% endfor %}
+    
 {% endblock %}
