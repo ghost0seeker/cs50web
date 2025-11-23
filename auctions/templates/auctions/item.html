@@ -2,38 +2,75 @@
 
 {% block body %}
     <p class="h2">{{ item.title }}</p>
+    <p class="h4">{{ item.state }}</p>
+    <p>Created by {{ item.user.username }}</p>
     <div class="item-card d-flex gap-3">
         <div class="card" style="width: 600px;" >
             <img src="{{ item.image }}" class="img-fluid" alt="{{ item.desc }}">
         </div>
-        <div class="item_actions d-flex flex-column gap-2 flex-grow-1">
-            <h4>Current Bid: $ {{ item.get_highest_bid }}</h4>
-            <h5>Initial Bid: $ {{ item.initial_bid_price }}</h5>
-            {% if item.bid_set %}
-                <h6>{{ item.bid_set.count }} bids so far</h6>
-            {% endif %}
-                <form action="{% url 'bid_item' item.id%}" method="post" class="d-flex flex-column gap-2">
-                {% csrf_token %}
-                <div class="form-group" style="width: 250px;">
-                    <input class="form-control" type="text" name="bid_amount" placeholder="Bid Amount">
-                </div>
-                <input class="btn btn-primary" type="submit" value="Submit" style="width: 250px;">
-            </form>
-            <hr class="flex-grow-1">
-            {% if messages %}
-            {% for message in messages %}
-                {% if message.tags == 'success' %}
-                <div class="alert alert-success">{{ message }}</div>
-                {% elif message.tags == 'warning' %}
-                <div class="alert alert-warning">{{ message }}</div>
-                {% elif message.tags == 'error' %}
-                <div class="alert alert-danger">{{ message }}</div>
-                {% elif message.tags == 'info' %}
-                <div class="alert alert-info">{{ message }}</div>
+        {% if item.state.id == 1 %}
+            <div class="item_actions d-flex flex-column gap-2 flex-grow-1">
+                <h4>Current Bid: $ {{ item.get_highest_bid }}</h4>
+                <h5>Initial Bid: $ {{ item.initial_bid_price }}</h5>
+                {% if item.bid_set %}
+                    <h6>{{ item.bid_set.count }} bids so far</h6>
                 {% endif %}
-            {% endfor %}
+                {% if user.is_authenticated %}
+                    <form action="{% url 'bid_item' item.id %}" method="post" class="d-flex flex-column gap-2">
+                        {% csrf_token %}
+                        <div class="form-group" style="width: 250px;">
+                            <input class="form-control" type="text" name="bid_amount" placeholder="Bid Amount">
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Submit" style="width: 250px;">
+                    </form>
+                {% else %}
+                    <p>Login to Bid</p>      
+                {% endif %}
+
+                <p>Created on {{ item.created_time }}</p>
+                <hr>
+                {% if is_in_watchlist %}
+                    <p>Item added in you watchlist</p>
+                {% else %}
+                    <form action="{% url 'watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{item.id}}">
+                        <input class="btn btn-primary" type="submit" value="Add to Watchlist" style="width: 250px;">
+                    </form>                   
+                {% endif %}
+                <hr>
+                {% if current_bid %}
+                    <p>{{current_bid.user.username }} placed ${{ current_bid.price }} bid on {{ current_bid.bid_time }}</p>
+                {% endif %}
+                {% if user_is_same %}
+                    <form action="{% url 'close_auction' item.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-primary" type="submit" value="Close Auction" style="width: 250px;">
+                    </form>
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <div class="alert alert-success">{{ message }}</div>
+                        {% elif message.tags == 'warning' %}
+                        <div class="alert alert-warning">{{ message }}</div>
+                        {% elif message.tags == 'error' %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                        {% elif message.tags == 'info' %}
+                        <div class="alert alert-info">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% else %}
+        <div class="d-flex flex-column">
+            {% if request.user.id == winner.user.id %}
+                <h4>You won the auciton at bid of ${{ winner.bid.price }}</h4>
+            {% else %}
+                <h4>Auction Won by {{ winner.user.username }} at bid of ${{ winner.bid.price }}</h4>
             {% endif %}
         </div>
+        {% endif %}
     </div>
     <hr>
     <p class="h3">Comments</p>
@@ -50,5 +87,16 @@
     {% empty %}
         <p>No comments</p>
     {% endfor %}
-    
+    {% if user.is_authenticated %}
+        <form action="{% url 'comment' item.id %}" method="post">
+            {% csrf_token %}
+            <div class="form-group mt-2">
+                <textarea class="form-control" type="text" name="comment_text" placeholder="Add Comment"></textarea>
+            </div>
+            <input class="btn btn-primary mt-2" type="submit" value="Submit">
+        </form>
+    {% else %}
+        <p>Login to Comment</p>      
+    {% endif %}
+
 {% endblock %}

@@ -9,3 +9,9 @@ class NewItemForm(forms.Form):
 
 class NewBidForm(forms.Form):
     bid_amount = forms.DecimalField(max_digits=10, decimal_places=2)
+
+class NewComment(forms.Form):
+    comment_text = forms.CharField()
+
+class NewWatchlist(forms.Form):
+    item_id = forms.IntegerField()

@@ -1,9 +1,9 @@
-{% extends "auctions/layout.html" %}
+{% extends 'auctions/layout.html' %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Your Watchlist</h2>
     <div class="d-flex">
-        {% for item in auction_items %}
+        {% for item in watchlist.items.all %}
             <div class="card m-2" style="width: 18rem;">
                 <img src="{{ item.image }}" class="card-img-top" alt="{{ item.title }}">
                 <div class="card-body">

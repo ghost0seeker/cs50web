@@ -5,11 +5,20 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+import logging
 
-from .models import User, AuctionItem, Bid, Comment, Category
-from .forms import NewItemForm, NewBidForm
+from .models import User, AuctionItem, Bid, Comment, Category, Winner, State, Watchlist
+from .forms import NewItemForm, NewBidForm, NewComment, NewWatchlist
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
+logger = logging.getLogger(__name__)
+
+@login_required
 def create_listing(request):
     categories = Category.objects.all()
     if request.method == "POST":
@@ -37,7 +46,7 @@ def create_listing(request):
 
 
 def index(request):
-    auction_items = AuctionItem.objects.all()
+    auction_items = AuctionItem.objects.filter(state=State.objects.get(pk=1))
     for auction in auction_items:
         print(auction.get_highest_bid())
     return render(request, "auctions/index.html", {
@@ -64,7 +73,7 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -96,14 +105,34 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
 def item_view(request, item_id):
     auction_item = AuctionItem.objects.get(pk=item_id)
     comments = auction_item.comment_set.all()
-    return render(request, "auctions/item.html", {
-        "item": auction_item,
-        "comments": comments,
-    })
+    current_bid = auction_item.bid_set.all().last()
+    is_in_watchlist = Watchlist.objects.filter(
+        user=request.user,
+        items = auction_item,
+    )
 
+    context =  {
+            "item": auction_item,
+            "comments": comments,
+            "current_bid": current_bid,
+            "is_in_watchlist": is_in_watchlist,
+        }
+    
+    if auction_item.state.type == "New Listing":
+        if request.user.id == auction_item.user.id:
+            context["user_is_same"] = True
+            return render(request, "auctions/item.html", context)
+        else:
+            return render(request, "auctions/item.html", context)
+    else:
+        context["winner"] = Winner.objects.filter(item=auction_item).first()
+        return render(request, "auctions/item.html", context)
+
+@login_required
 def bid_item(request, item_id):
     # pass
     if request.method == "POST":
@@ -128,3 +157,68 @@ def bid_item(request, item_id):
         else:
             messages.error(request, 'Error while bidding, please try again')
             return redirect('item', item_id)
+
+@login_required
+def comment(request,item_id):
+    if request.method == "POST":
+        form = NewComment(request.POST)
+        if form.is_valid():
+            new_comment = Comment(
+                    item=AuctionItem.objects.get(pk=item_id),
+                    text = form.cleaned_data["comment_text"],
+                    user = request.user,
+            )
+            new_comment.save()
+            return redirect('item', item_id)
+        else:
+            messages.error(request, "Form Data Invalid")
+            return redirect('item', item_id)
+
+@login_required
+def close_auction(request, item_id):
+    if request.method == "POST":
+        auction_item = AuctionItem.objects.get(pk=item_id)
+        highest_bid = auction_item.get_highest_bid_obj()
+        winner_user = auction_item.get_highest_bid_user()
+        if winner_user:
+            winner = Winner(
+                    item=auction_item,
+                    user=winner_user,
+                    bid=highest_bid,
+            )
+            auction_item.change_state()
+            auction_item.save()
+            winner.save()
+            return redirect('item', item_id)
+
+@login_required
+def watchlist(request):
+    watchlist, created = request.user.watchlist_set.get_or_create()
+    if request.method == "POST":
+        form = NewWatchlist(request.POST)
+        if form.is_valid():
+            watchlist.items.add(AuctionItem.objects.get(pk=form.cleaned_data["item_id"]))
+            return redirect('item', form.cleaned_data["item_id"])
+        else:
+            messages.error(request, "Failed to add item to watchlist")
+            return redirect('item', form.cleaned_data["item_id"])
+            
+    context = {}
+    if watchlist:
+        context["watchlist"] = watchlist
+    else:
+        context["watchlist"] = None
+    
+    return render(request, "auctions/watchlist.html", context)
+
+def categories(request):
+    categories = Category.objects.exclude(pk=2)
+    return render(request, "auctions/categories.html", {
+        "categories": categories,
+    })
+
+def category_view(request, category_id):
+    category = Category.objects.get(pk=category_id)
+    return render(request, "auctions/category_view.html", {
+        "category": category,
+    })

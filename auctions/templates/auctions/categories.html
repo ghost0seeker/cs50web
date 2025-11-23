@@ -1,0 +1,13 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+     <ul class="nav d-flex flex-column">
+        {% for category in categories %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'category_view' category.id %}">{{ category.name }}</a>
+            </li>
+        {% empty %}
+            <li>No categories</li>
+        {% endfor %}
+        </ul>
+{% endblock %}
