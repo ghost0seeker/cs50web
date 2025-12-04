@@ -26,8 +26,6 @@ function compose_email() {
 
 function load_emails(emails) {
 
-  let counter = 1;
-
   for (const email of emails) {
     const emailCard = `
       <div class="card">
@@ -37,33 +35,55 @@ function load_emails(emails) {
           <div class="card-body">
               <h5 class="card-title">${email.subject}</h5>
               <p class="card-text">${email.sender}</p>
-              <div class="collapse mb-2" id="collapseExample${counter}">
-                <div class="card card-body">
+              <div class="collapse mb-2" id="collapseExample${email.id}">
+                <div class="card card-body mb-2">
                   ${email.body}
                 </div>
+                <p class="d-inline-flex gap-4">
+                  <button class="btn btn-primary" id="reply${email.id}" type="button" data-email-id="${email.id}">
+                    Reply
+                  </button>
+                </p>
               </div>
               <p class="d-inline-flex gap-4">
-                <button class="btn btn-primary view" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample${counter}" aria-expanded="false" aria-controls="collapseExample${counter}">View</button>
+                <button class="btn btn-primary" id="view${email.id}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample${email.id}" aria-expanded="false" aria-controls="collapseExample${email.id}">View</button>
 
-                <button class="btn btn-success" id="read${counter}" type="button" data-email-id="${email.id}">
+                <button class="btn btn-success" id="read${email.id}" type="button" data-email-id="${email.id}">
                   ${email.read ? 'Unread' : 'Read' }
                 </button>
                 
-                <button class="btn btn-dark" id="archive${counter}" type="button" data-email-id="${email.id}">
-                  ${email.archive ? 'Archived': 'Archive'}
+                <button class="btn btn-dark" id="archive${email.id}" type="button" data-email-id="${email.id}">
+                  ${email.archived ? 'Archived': 'Archive'}
                 </button>
-
               </p>          
           </div>
       </div>
     `
     document.querySelector('#emails-view').insertAdjacentHTML('beforeend', emailCard);
 
-    document.querySelector(`#read${counter}`).addEventListener('click', (e) => read_email(email.id, e.target));
-    document.querySelector(`#archive${counter}`).addEventListener('click', (e) => archive_email(email.id, e.target));
-
-    counter++;
+    document.querySelector(`#view${email.id}`).addEventListener('click', (e) => {
+      fetch(`/emails/${email.id}`)
+      .then(response => response.json())
+      .then(email => view_read_email(e.target, email));
+    })
+    document.querySelector(`#read${email.id}`).addEventListener('click', (e) => read_email(email.id, e.target));
+    document.querySelector(`#archive${email.id}`).addEventListener('click', (e) => archive_email(email.id, e.target));
+    document.querySelector(`#reply${email.id}`).addEventListener('click', () => {
+      fetch(`/emails/${email.id}`)
+      .then(response => response.json())
+      .then(emailData => reply_email(emailData));
+    })
   }
+}
+
+function view_read_email(button, email) {
+    fetch(`/emails/${email.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          read: true,
+        })
+    })
+    .then(button.textContent = 'Unread');
 }
 
 function read_email(email_id, button) {
@@ -100,18 +120,6 @@ function archive_email(email_id, button) {
     });
 }
 
-
-function load_email_content(email_id) {
-
-  fetch(`/emails/${email_id}`)
-  .this(response => response.json)
-  .this(email => {
-    const emailContent = `
-    `
-  })
-
-}
-
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
@@ -144,9 +152,17 @@ function load_mailbox(mailbox) {
 
 }
 
+function reply_email(email) {
+  console.log(email)
+  compose_email();
+
+  document.querySelector("#compose-recipients").value = email.sender;
+  document.querySelector("#compose-subject").value = `RE: ${email.subject}`;
+  document.querySelector("#compose-body").value = `\n\nOn ${email.timestamp} ${email.sender} wrote:\n${email.body}`;
+
+}
+
 function post_email(e) {
-  console.log("post_email")
-    // const formData = new FormData(form);
   e.preventDefault();
 
   const recipients = document.querySelector("#compose-recipients").value;
