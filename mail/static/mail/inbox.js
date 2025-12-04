@@ -6,13 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector("#compose-form").addEventListener('submit', post_email);
-  
-  // Email Content
-  const viewButton = document.querySelector("#view-email");
-
-  if (viewButton) {
-    viewButton.addEventListener('click', () => load_email_content(this.dataset.emailId));
-  }
 
   // By default, load the inbox
   load_mailbox('inbox');
@@ -32,6 +25,9 @@ function compose_email() {
 }
 
 function load_emails(emails) {
+
+  let counter = 1;
+
   for (const email of emails) {
     const emailCard = `
       <div class="card">
@@ -41,14 +37,69 @@ function load_emails(emails) {
           <div class="card-body">
               <h5 class="card-title">${email.subject}</h5>
               <p class="card-text">${email.sender}</p>
-              <button class="btn btn-primary" id="view-email" data-email-id="${email.id}">View</button>
+              <div class="collapse mb-2" id="collapseExample${counter}">
+                <div class="card card-body">
+                  ${email.body}
+                </div>
+              </div>
+              <p class="d-inline-flex gap-4">
+                <button class="btn btn-primary view" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample${counter}" aria-expanded="false" aria-controls="collapseExample${counter}">View</button>
+
+                <button class="btn btn-success" id="read${counter}" type="button" data-email-id="${email.id}">
+                  ${email.read ? 'Unread' : 'Read' }
+                </button>
+                
+                <button class="btn btn-dark" id="archive${counter}" type="button" data-email-id="${email.id}">
+                  ${email.archive ? 'Archived': 'Archive'}
+                </button>
+
+              </p>          
           </div>
       </div>
     `
-    
-    document.querySelector('#emails-view').innerHTML += emailCard;
+    document.querySelector('#emails-view').insertAdjacentHTML('beforeend', emailCard);
+
+    document.querySelector(`#read${counter}`).addEventListener('click', (e) => read_email(email.id, e.target));
+    document.querySelector(`#archive${counter}`).addEventListener('click', (e) => archive_email(email.id, e.target));
+
+    counter++;
   }
 }
+
+function read_email(email_id, button) {
+  fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+      const newReadState = !email.read;
+      fetch(`/emails/${email_id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          read: newReadState,
+        })
+      })
+      .then(() => {
+        button.textContent = newReadState ? 'Unread' : 'Read';
+      })
+    })
+  }
+
+function archive_email(email_id, button) {
+  fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+      const newArchiveState = !email.archived  
+      fetch(`/emails/${email_id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            archived: newArchiveState,
+          })
+        })
+        .then(() => {
+          button.textContent = newArchiveState ? 'Archived': 'Archive'
+        });
+    });
+}
+
 
 function load_email_content(email_id) {
 
@@ -81,13 +132,14 @@ function load_mailbox(mailbox) {
       fetch(`/emails/${mailbox}`)
       .then(response => response.json())
       .then(emails => {
-        console.log(emails);
+        load_emails(emails);
       });
-
+      break;
     default:
       fetch(`/emails/inbox`)
       .then(response => response.json())
       .then(emails => load_emails(emails));
+      break;
   }
 
 }

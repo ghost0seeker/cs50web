@@ -24,6 +24,7 @@ def index(request):
 @csrf_exempt
 @login_required
 def compose(request):
+    print("compose ran")
     # Composing a new email must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -111,6 +112,7 @@ def email(request, email_id):
 
     # Update whether email is read or should be archived
     elif request.method == "PUT":
+        print("frontend put")
         data = json.loads(request.body)
         if data.get("read") is not None:
             email.read = data["read"]
