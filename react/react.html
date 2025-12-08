@@ -12,11 +12,20 @@
     <div id="app"></div>
 
     <script type="text/babel">
+        const Hello = (props) => {
+            return (
+                <div>Hello, {props.name}!</div>
+            )
+        }
         function App() {
             const x = 1;
             const y = 2;
             return (
-                <div>{x + y}</div>
+                <div>
+                    <Hello name="Harry"/>
+                    <Hello name="Ron"/>
+                    <Hello name="Hermoine"/>
+                </div>
             );
         }
 
